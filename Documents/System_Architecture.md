@@ -547,3 +547,798 @@ Security considerations are incorporated into every layer of the system, includi
 The architecture allows future expansion by adding new services or modules without redesigning the existing system.
 
 ---
+
+# 8. Layered Architecture
+
+The NexBuddy backend follows a **five-layer architecture**, where each layer has a specific responsibility. This separation improves maintainability, scalability, and testability.
+
+```text
+                    Client Layer
+          (Flutter / React / Admin)
+
+                     │
+                     ▼
+
+             Controller Layer
+        (REST API Endpoints)
+
+                     │
+                     ▼
+
+              Service Layer
+      (Business Logic & Validation)
+
+                     │
+                     ▼
+
+            Repository Layer
+        (Spring Data JPA Repositories)
+
+                     │
+                     ▼
+
+             PostgreSQL Database
+```
+
+---
+
+## 8.1 Presentation Layer
+
+The Presentation Layer is responsible for user interaction.
+
+### Components
+
+### Flutter Mobile App
+
+Responsibilities
+
+- Login
+- Registration
+- User Dashboard
+- Chat
+- Communities
+- Events
+- Notifications
+
+---
+
+### React Web Application
+
+Responsibilities
+
+- Landing Page
+- User Dashboard
+- Community Management
+- Event Management
+- Settings
+
+---
+
+### Admin Dashboard
+
+Responsibilities
+
+- User Management
+- Reports
+- Analytics
+- Categories
+- Moderation
+
+---
+
+## 8.2 Controller Layer
+
+The Controller Layer receives HTTP requests from clients.
+
+Responsibilities
+
+- Receive Requests
+- Validate Request Format
+- Forward Requests
+- Return HTTP Responses
+
+Example
+
+```text
+POST /api/auth/login
+
+↓
+
+AuthenticationController
+
+↓
+
+AuthenticationService
+```
+
+---
+
+## 8.3 Service Layer
+
+This layer contains the complete business logic.
+
+Examples
+
+Authentication Service
+
+- Login
+- Register
+- JWT Generation
+
+User Service
+
+- Update Profile
+- Search Users
+
+Buddy Service
+
+- Matching Algorithm
+- Friend Requests
+
+Community Service
+
+- Create Community
+- Join Community
+
+Event Service
+
+- Create Event
+- Join Event
+
+Notification Service
+
+- Send Notifications
+
+---
+
+## 8.4 Repository Layer
+
+Repositories communicate directly with PostgreSQL.
+
+Examples
+
+UserRepository
+
+CommunityRepository
+
+EventRepository
+
+ChatRepository
+
+NotificationRepository
+
+Each repository performs CRUD operations.
+
+---
+
+## 8.5 Database Layer
+
+Stores all application data.
+
+Examples
+
+- Users
+- Profiles
+- Interests
+- Events
+- Communities
+- Messages
+- Notifications
+- Reports
+
+---
+
+# 9. Component Architecture
+
+The application consists of multiple independent components.
+
+```text
+                    NexBuddy
+
+                         │
+
+ ┌───────────────┬───────────────┬───────────────┐
+ │               │               │               │
+ ▼               ▼               ▼               ▼
+Authentication   User       Community       Event
+
+ │               │               │               │
+
+ ├───────────────┼───────────────┼───────────────┤
+
+ ▼               ▼               ▼               ▼
+
+Chat        Notification    Buddy Match    Admin
+
+                 │
+                 ▼
+
+             PostgreSQL
+```
+
+Each component performs a dedicated task while communicating through service interfaces.
+
+---
+
+# 10. Module Architecture
+
+The system is divided into functional modules.
+
+---
+
+## Authentication Module
+
+Responsibilities
+
+- Register
+- Login
+- Logout
+- Forgot Password
+- Email Verification
+
+Uses
+
+- JWT
+- BCrypt
+- Spring Security
+
+---
+
+## User Module
+
+Responsibilities
+
+- Profile
+- Interests
+- Friends
+- Settings
+- Privacy
+
+---
+
+## Buddy Module
+
+Responsibilities
+
+- Buddy Requests
+- Friend Suggestions
+- Nearby Users
+- Activity Matching
+
+---
+
+## Community Module
+
+Responsibilities
+
+- Community Creation
+- Member Management
+- Posts
+- Discussions
+
+---
+
+## Event Module
+
+Responsibilities
+
+- Event Creation
+- Event Registration
+- Event Chat
+- Invitations
+
+---
+
+## Chat Module
+
+Responsibilities
+
+- Private Chat
+- Group Chat
+- Media Sharing
+- Read Receipts
+
+Uses
+
+WebSocket
+
+---
+
+## Notification Module
+
+Responsibilities
+
+- Push Notifications
+- In-App Notifications
+- Event Alerts
+- Chat Alerts
+
+---
+
+## Admin Module
+
+Responsibilities
+
+- Reports
+- User Management
+- Community Moderation
+- Analytics
+
+---
+
+# 11. Backend Architecture
+
+The backend follows the MVC pattern with Spring Boot.
+
+```text
+Controller
+
+↓
+
+Service
+
+↓
+
+Repository
+
+↓
+
+Database
+```
+
+---
+
+## Backend Package Structure
+
+```text
+Backend
+
+│
+
+├── config/
+
+├── controller/
+
+├── dto/
+
+├── entity/
+
+├── repository/
+
+├── security/
+
+├── service/
+
+├── websocket/
+
+├── exception/
+
+├── util/
+
+└── NexBuddyApplication.java
+```
+
+---
+
+## Controller Layer
+
+Receives HTTP requests.
+
+Examples
+
+AuthenticationController
+
+UserController
+
+CommunityController
+
+EventController
+
+ChatController
+
+---
+
+## Service Layer
+
+Contains business logic.
+
+Examples
+
+AuthenticationService
+
+EventService
+
+ChatService
+
+NotificationService
+
+---
+
+## Repository Layer
+
+Responsible for database interaction.
+
+Examples
+
+UserRepository
+
+EventRepository
+
+MessageRepository
+
+CommunityRepository
+
+---
+
+## Security Layer
+
+Includes
+
+- JWT Filter
+- Authentication Manager
+- Password Encoder
+- Role Authorization
+
+---
+
+# 12. Frontend Architecture
+
+The frontend is built using React.js.
+
+Structure
+
+```text
+src/
+
+├── assets/
+
+├── components/
+
+├── pages/
+
+├── layouts/
+
+├── hooks/
+
+├── context/
+
+├── routes/
+
+├── services/
+
+├── utils/
+
+└── App.jsx
+```
+
+---
+
+## Pages
+
+Examples
+
+Home
+
+Login
+
+Register
+
+Dashboard
+
+Communities
+
+Events
+
+Messages
+
+Profile
+
+Settings
+
+---
+
+## Components
+
+Reusable UI
+
+Examples
+
+Navbar
+
+Sidebar
+
+Buddy Card
+
+Event Card
+
+Community Card
+
+Notification Card
+
+Footer
+
+---
+
+## Context
+
+Used for
+
+- Authentication
+- Theme
+- Notifications
+- User Session
+
+---
+
+## Services
+
+Responsible for API communication.
+
+Examples
+
+AuthenticationService
+
+EventService
+
+CommunityService
+
+MessageService
+
+---
+
+# 13. Mobile Application Architecture
+
+Flutter follows MVVM-inspired project organization.
+
+```text
+lib/
+
+├── models/
+
+├── providers/
+
+├── services/
+
+├── screens/
+
+├── widgets/
+
+├── routes/
+
+├── utils/
+
+└── main.dart
+```
+
+---
+
+## Screens
+
+Splash Screen
+
+Login
+
+Register
+
+Home
+
+Events
+
+Communities
+
+Messages
+
+Profile
+
+Settings
+
+---
+
+## Widgets
+
+Reusable Components
+
+Examples
+
+Buddy Card
+
+Community Card
+
+Navigation Bar
+
+Buttons
+
+Dialogs
+
+---
+
+## Providers
+
+Responsible for application state.
+
+Examples
+
+AuthenticationProvider
+
+UserProvider
+
+ChatProvider
+
+NotificationProvider
+
+---
+
+# 14. Admin Dashboard Architecture
+
+The Admin Dashboard is a separate React application.
+
+Modules
+
+Dashboard
+
+Users
+
+Reports
+
+Communities
+
+Events
+
+Categories
+
+Analytics
+
+Settings
+
+---
+
+## Dashboard Statistics
+
+Displays
+
+- Total Users
+- Active Users
+- Communities
+- Events
+- Reports
+- Daily Registrations
+
+---
+
+# 15. AI Service Architecture (Future)
+
+AI will be implemented as an independent microservice.
+
+```text
+Spring Boot
+
+↓
+
+REST API
+
+↓
+
+AI Service (Python/FastAPI)
+
+↓
+
+Recommendation Engine
+```
+
+Possible AI Features
+
+- Buddy Recommendation
+- Event Recommendation
+- Spam Detection
+- Fake Account Detection
+- Personalized Feed
+
+---
+
+# 16. Request Processing Flow
+
+Example: User Login
+
+```text
+Flutter App
+
+↓
+
+POST /api/login
+
+↓
+
+Authentication Controller
+
+↓
+
+Authentication Service
+
+↓
+
+JWT Authentication
+
+↓
+
+Database Validation
+
+↓
+
+JWT Generated
+
+↓
+
+Response Sent
+
+↓
+
+Dashboard
+```
+
+---
+
+Example: Create Event
+
+```text
+User
+
+↓
+
+React / Flutter
+
+↓
+
+Event Controller
+
+↓
+
+Event Service
+
+↓
+
+Event Repository
+
+↓
+
+PostgreSQL
+
+↓
+
+Success Response
+```
+
+---
+
+# 17. Folder-Level Architecture
+
+```text
+NexBuddy/
+
+│
+
+├── Backend/
+
+├── Web/
+
+├── MobileApp/
+
+├── AdminDashboard/
+
+├── Database/
+
+├── AI/
+
+├── Documents/
+
+├── UI-UX/
+
+├── API/
+
+├── Testing/
+
+└── Deployment/
+```
+
+This structure keeps each part of the system independent while allowing them to work together through well-defined interfaces.
+
+---
