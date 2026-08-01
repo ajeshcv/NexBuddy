@@ -1342,3 +1342,1096 @@ NexBuddy/
 This structure keeps each part of the system independent while allowing them to work together through well-defined interfaces.
 
 ---
+
+
+# 18. Database Architecture
+
+## Overview
+
+NexBuddy uses **PostgreSQL** as its relational database management system. The database stores all persistent application data, including user profiles, buddy relationships, communities, events, messages, notifications, and reports.
+
+The database is designed following normalization principles to minimize redundancy while maintaining performance.
+
+---
+
+## Database Architecture
+
+```text
+                    Spring Boot
+                         │
+                         ▼
+                Spring Data JPA
+                         │
+                         ▼
+                 PostgreSQL Database
+                         │
+ ┌────────────┬──────────────┬─────────────┐
+ │            │              │             │
+ ▼            ▼              ▼             ▼
+Users     Communities      Events      Messages
+ │            │              │             │
+ ▼            ▼              ▼             ▼
+Profiles   Members     Participants  Notifications
+```
+
+---
+
+## Core Database Tables
+
+The database includes the following primary entities:
+
+- Users
+- User Profiles
+- Interests
+- Buddy Requests
+- Friendships
+- Communities
+- Community Members
+- Community Posts
+- Events
+- Event Participants
+- Posts
+- Comments
+- Likes
+- Messages
+- Notifications
+- Reports
+- Categories
+- Roles
+- Permissions
+- Activity Logs
+
+---
+
+## Database Relationships
+
+Examples:
+
+```text
+User
+ │
+ ├── One Profile
+ │
+ ├── Many Posts
+ │
+ ├── Many Events
+ │
+ ├── Many Communities
+ │
+ └── Many Messages
+```
+
+---
+
+# 19. Authentication Architecture
+
+## Overview
+
+Authentication is handled using **JWT (JSON Web Token)** with **Spring Security**.
+
+The backend is stateless, meaning no session information is stored on the server.
+
+---
+
+## Authentication Flow
+
+```text
+User
+
+↓
+
+Login Request
+
+↓
+
+Authentication Controller
+
+↓
+
+Authentication Service
+
+↓
+
+Spring Security
+
+↓
+
+Verify Credentials
+
+↓
+
+Generate JWT
+
+↓
+
+Return JWT Token
+
+↓
+
+Client Stores Token
+
+↓
+
+Token Sent With Every API Request
+```
+
+---
+
+## Login Sequence
+
+1. User enters credentials.
+2. Backend validates credentials.
+3. Password is verified using BCrypt.
+4. JWT token is generated.
+5. Client stores the token securely.
+6. Protected APIs require the token in the Authorization header.
+
+Example:
+
+```text
+Authorization: Bearer eyJhbGciOiJIUzI1Ni...
+```
+
+---
+
+# 20. Authorization Architecture
+
+## Role-Based Access Control (RBAC)
+
+NexBuddy uses RBAC to restrict access based on user roles.
+
+---
+
+## Roles
+
+### Guest
+
+Permissions:
+
+- View Landing Page
+- Register
+- Login
+
+---
+
+### User
+
+Permissions:
+
+- Manage Profile
+- Create Posts
+- Join Communities
+- Create Events
+- Chat
+- Report Users
+
+---
+
+### Community Moderator
+
+Permissions:
+
+- Remove Posts
+- Manage Members
+- Moderate Community
+
+---
+
+### Administrator
+
+Permissions:
+
+- Manage Users
+- View Reports
+- Delete Content
+- Manage Categories
+- Access Analytics
+
+---
+
+## Authorization Flow
+
+```text
+Request
+
+↓
+
+JWT Filter
+
+↓
+
+Role Validation
+
+↓
+
+Access Granted?
+
+YES → Continue
+
+NO → Return 403 Forbidden
+```
+
+---
+
+# 21. Chat Architecture
+
+## Overview
+
+Real-time messaging is implemented using **WebSocket**.
+
+Unlike REST APIs, WebSocket maintains a persistent connection between the client and server, enabling instant communication.
+
+---
+
+## Chat Architecture
+
+```text
+Flutter / React
+
+↓
+
+WebSocket Connection
+
+↓
+
+Spring Boot WebSocket Server
+
+↓
+
+Chat Service
+
+↓
+
+PostgreSQL
+
+↓
+
+Receiver
+```
+
+---
+
+## Chat Features
+
+Supported features include:
+
+- One-to-One Messaging
+- Group Chat
+- Typing Indicator
+- Online Status
+- Read Receipts
+- Image Sharing
+- File Sharing
+- Voice Notes
+
+---
+
+## Chat Message Flow
+
+```text
+User A
+
+↓
+
+WebSocket
+
+↓
+
+Spring Boot
+
+↓
+
+Database
+
+↓
+
+Receiver Online?
+
+YES
+
+↓
+
+Send Immediately
+
+NO
+
+↓
+
+Store Message
+
+↓
+
+Deliver Later
+```
+
+---
+
+# 22. Notification Architecture
+
+## Overview
+
+Push notifications are delivered using **Firebase Cloud Messaging (FCM)**.
+
+---
+
+## Notification Sources
+
+Notifications are triggered for:
+
+- Buddy Requests
+- Accepted Requests
+- New Messages
+- Event Invitations
+- Community Invitations
+- Likes
+- Comments
+- Mentions
+- Event Reminders
+
+---
+
+## Notification Flow
+
+```text
+Application Event
+
+↓
+
+Notification Service
+
+↓
+
+Firebase Cloud Messaging
+
+↓
+
+Android / iOS Device
+```
+
+---
+
+# 23. Google Maps Integration
+
+Google Maps is used for location-based services.
+
+---
+
+## Features
+
+- Nearby Users
+- Nearby Events
+- Event Location
+- Community Meetups
+- Distance Calculation
+
+---
+
+## Architecture
+
+```text
+Flutter / React
+
+↓
+
+Google Maps API
+
+↓
+
+Coordinates
+
+↓
+
+Spring Boot
+
+↓
+
+Database
+```
+
+---
+
+# 24. Cloudinary Integration
+
+Cloudinary stores all uploaded media files.
+
+Examples:
+
+- Profile Images
+- Event Images
+- Community Banners
+- Post Images
+
+---
+
+## Upload Flow
+
+```text
+User Upload
+
+↓
+
+Spring Boot
+
+↓
+
+Cloudinary
+
+↓
+
+Image URL
+
+↓
+
+PostgreSQL
+```
+
+The database stores only the generated URL instead of the image itself.
+
+---
+
+# 25. API Communication
+
+Communication between frontend and backend follows REST principles.
+
+Example Endpoints:
+
+```text
+POST   /api/auth/login
+
+POST   /api/auth/register
+
+GET    /api/users
+
+PUT    /api/profile
+
+GET    /api/events
+
+POST   /api/events
+
+GET    /api/community
+
+POST   /api/community
+
+GET    /api/messages
+
+POST   /api/messages
+```
+
+---
+
+## Response Format
+
+Example Success Response
+
+```json
+{
+    "success": true,
+    "message": "Login successful",
+    "token": "JWT_TOKEN"
+}
+```
+
+Example Error Response
+
+```json
+{
+    "success": false,
+    "message": "Invalid credentials"
+}
+```
+
+---
+
+# 26. Deployment Architecture
+
+The system follows a cloud-ready deployment architecture.
+
+```text
+                     Users
+                        │
+                        ▼
+                  Internet (HTTPS)
+                        │
+                        ▼
+                Nginx Reverse Proxy
+                        │
+                        ▼
+              Spring Boot Application
+                        │
+          ┌─────────────┼─────────────┐
+          │             │             │
+          ▼             ▼             ▼
+    PostgreSQL     Cloudinary     Firebase
+```
+
+---
+
+## Deployment Components
+
+Frontend
+
+- React Application
+
+Mobile
+
+- Flutter APK / IPA
+
+Backend
+
+- Spring Boot JAR
+
+Database
+
+- PostgreSQL
+
+Media
+
+- Cloudinary
+
+Notifications
+
+- Firebase
+
+---
+
+# 27. Security Architecture
+
+Security is implemented at multiple levels.
+
+---
+
+## Authentication
+
+- JWT
+- BCrypt
+
+---
+
+## Communication
+
+- HTTPS
+- TLS Encryption
+
+---
+
+## Input Validation
+
+Every incoming request is validated.
+
+Protection against:
+
+- SQL Injection
+- XSS
+- CSRF
+- Invalid File Uploads
+
+---
+
+## Password Security
+
+Passwords are never stored in plain text.
+
+Stored as:
+
+```text
+BCrypt Hash
+```
+
+---
+
+## API Protection
+
+Protected APIs require:
+
+```text
+Authorization: Bearer <JWT>
+```
+
+---
+
+## Logging
+
+Security logs include:
+
+- Login Attempts
+- Failed Authentication
+- Password Changes
+- Administrative Actions
+
+---
+
+# 28. Scalability Architecture
+
+## Overview
+
+NexBuddy is designed with scalability in mind so that the platform can support increasing numbers of users, communities, events, and messages without requiring a complete redesign.
+
+The architecture allows individual components to be scaled independently.
+
+---
+
+## Horizontal Scaling
+
+The backend application can be deployed on multiple servers.
+
+```text
+                 Load Balancer
+                      │
+      ┌───────────────┼───────────────┐
+      │               │               │
+      ▼               ▼               ▼
+Spring Boot 1   Spring Boot 2   Spring Boot 3
+      │               │               │
+      └───────────────┼───────────────┘
+                      │
+               PostgreSQL Database
+```
+
+Benefits:
+
+- Supports thousands of users
+- Improved availability
+- Better fault tolerance
+- Easier maintenance
+
+---
+
+## Vertical Scaling
+
+Server resources can be increased when required.
+
+Examples
+
+- More CPU
+- More RAM
+- Faster SSD Storage
+
+---
+
+# 29. Performance Optimization
+
+The architecture includes several optimization techniques.
+
+---
+
+## Database Optimization
+
+- Indexed columns
+- Optimized SQL queries
+- Foreign key indexing
+- Pagination
+- Connection Pooling
+
+---
+
+## Backend Optimization
+
+- Stateless REST APIs
+- Efficient Business Logic
+- Request Validation
+- Exception Handling
+- DTO Mapping
+
+---
+
+## Frontend Optimization
+
+- Lazy Loading
+- Code Splitting
+- Image Compression
+- API Caching
+- Responsive Components
+
+---
+
+## Mobile Optimization
+
+- Cached Images
+- Local Storage
+- Efficient State Management
+- Offline Data (Future)
+
+---
+
+# 30. Fault Tolerance
+
+The system should continue operating even when certain components fail.
+
+Examples
+
+- Retry failed API requests
+- Automatic database reconnection
+- Notification retry mechanism
+- Graceful error handling
+- Detailed error logging
+
+---
+
+# 31. Monitoring & Logging
+
+Monitoring helps administrators identify and resolve issues quickly.
+
+---
+
+## System Monitoring
+
+Monitor:
+
+- CPU Usage
+- Memory Usage
+- Disk Space
+- Network Traffic
+- API Response Time
+- Active Users
+
+---
+
+## Application Logging
+
+The backend records:
+
+- User Login
+- Registration
+- Password Reset
+- Event Creation
+- Community Creation
+- Buddy Requests
+- Chat Errors
+- Security Events
+
+---
+
+## Error Logging
+
+Store:
+
+- Exception Details
+- API Failures
+- Database Errors
+- Authentication Failures
+
+---
+
+# 32. Backup & Recovery
+
+## Database Backup
+
+Schedule
+
+- Daily Backup
+
+---
+
+## Media Backup
+
+Images stored on Cloudinary.
+
+Cloudinary provides redundancy for uploaded media.
+
+---
+
+## Disaster Recovery
+
+The system should support:
+
+- Database Restore
+- Media Recovery
+- Configuration Backup
+
+---
+
+# 33. Future Architecture
+
+The architecture is designed to support future enhancements without affecting the existing system.
+
+---
+
+## AI Recommendation Service
+
+```text
+Spring Boot
+
+↓
+
+REST API
+
+↓
+
+AI Service (Python)
+
+↓
+
+Recommendation Engine
+
+↓
+
+Suggested Users
+```
+
+Possible Features
+
+- Buddy Recommendation
+- Event Recommendation
+- Community Recommendation
+- Personalized Feed
+- Smart Notifications
+
+---
+
+## Microservices Architecture (Future)
+
+As the platform grows, modules can be separated into independent microservices.
+
+```text
+                 API Gateway
+                      │
+ ┌─────────┬─────────┬─────────┬─────────┐
+ ▼         ▼         ▼         ▼         ▼
+Auth     Users    Events   Chat    Communities
+Service  Service  Service  Service   Service
+```
+
+Advantages
+
+- Independent deployment
+- Better scalability
+- Easier maintenance
+- Fault isolation
+
+---
+
+## Caching Layer
+
+Redis can be introduced for:
+
+- Session Caching
+- Frequently Accessed Data
+- Notification Queue
+- Trending Events
+
+---
+
+## Containerization
+
+Deployment can use Docker containers.
+
+```text
+Docker
+
+↓
+
+Spring Boot Container
+
+↓
+
+PostgreSQL Container
+
+↓
+
+React Container
+
+↓
+
+Nginx
+```
+
+Benefits
+
+- Consistent environments
+- Easy deployment
+- Simplified scaling
+
+---
+
+## Orchestration
+
+Future deployments may use Kubernetes.
+
+Responsibilities
+
+- Auto Scaling
+- Load Balancing
+- Service Discovery
+- Self Healing
+
+---
+
+# 34. Architectural Decisions
+
+The following technologies were selected based on project requirements.
+
+---
+
+## React
+
+Reason
+
+- Component-based architecture
+- Fast rendering
+- Large ecosystem
+
+---
+
+## Flutter
+
+Reason
+
+- Cross-platform development
+- Native-like performance
+- Single codebase
+
+---
+
+## Spring Boot
+
+Reason
+
+- Enterprise-grade framework
+- Security support
+- REST API development
+- Excellent PostgreSQL integration
+
+---
+
+## PostgreSQL
+
+Reason
+
+- Open source
+- ACID compliance
+- Strong relational capabilities
+- Excellent performance
+
+---
+
+## JWT
+
+Reason
+
+- Stateless authentication
+- Secure API communication
+- Easy frontend integration
+
+---
+
+## WebSocket
+
+Reason
+
+- Real-time messaging
+- Low latency communication
+
+---
+
+## Cloudinary
+
+Reason
+
+- Secure media storage
+- Image optimization
+- CDN delivery
+
+---
+
+## Firebase Cloud Messaging
+
+Reason
+
+- Reliable push notifications
+- Android and iOS support
+
+---
+
+# 35. Advantages of the Architecture
+
+The selected architecture provides several benefits.
+
+---
+
+## Scalability
+
+Supports future growth.
+
+---
+
+## Security
+
+Multiple security layers protect user data.
+
+---
+
+## Performance
+
+Efficient APIs and optimized database access improve responsiveness.
+
+---
+
+## Maintainability
+
+Clear separation of responsibilities makes updates easier.
+
+---
+
+## Flexibility
+
+New modules can be integrated without redesigning the entire system.
+
+---
+
+## Reusability
+
+Common services and UI components are reusable across the application.
+
+---
+
+## Reliability
+
+Fault tolerance and backup strategies improve system stability.
+
+---
+
+## Extensibility
+
+The architecture supports future technologies, including AI services, microservices, and cloud-native deployment.
+
+---
+
+# 36. Limitations
+
+Current limitations include:
+
+- Internet connection required
+- Google Maps API usage limits
+- Cloudinary free-tier storage limits
+- Firebase notification quotas
+- AI features are planned for future versions
+
+---
+
+# 37. Conclusion
+
+The NexBuddy System Architecture provides a modular, secure, and scalable foundation for developing a modern social networking and activity matching platform.
+
+By adopting a layered architecture, RESTful APIs, Spring Boot, React, Flutter, PostgreSQL, WebSocket, and cloud-based services, the system is designed to meet current functional requirements while remaining flexible for future enhancements.
+
+The architecture emphasizes maintainability, security, performance, and extensibility, ensuring that NexBuddy can evolve into a robust platform capable of supporting a growing user base and new features over time.
+
+---
+
+# References
+
+- Spring Boot Documentation
+- React Documentation
+- Flutter Documentation
+- PostgreSQL Documentation
+- Spring Security Documentation
+- JWT (RFC 7519)
+- Google Maps Platform Documentation
+- Firebase Cloud Messaging Documentation
+- Cloudinary Documentation
+- REST API Design Best Practices
+
+---
+
+
+
